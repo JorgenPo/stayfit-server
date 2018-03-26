@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"github.com/jorgenpo/stayfit-server/database"
+	"github.com/jorgenpo/stayfit-server/server"
 )
 
 func main() {
@@ -21,5 +22,6 @@ func main() {
 		os.Exit(2)
 	}
 
-
+	stayFitServer := server.StayFitServer{}
+	stayFitServer.Init(serverConfig, serverDatabase)
 }

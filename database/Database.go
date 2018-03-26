@@ -17,7 +17,7 @@ func GetDatabase(name string, user string, password string) (Database, error) {
 	database := Database{}
 
 	db, err := sql.Open("mysql",
-		fmt.Sprintf("%s:%s@/%s", name, user, password))
+		fmt.Sprintf("%s:%s@/%s", user, password, name))
 
 	if err != nil {
 		return database, err
