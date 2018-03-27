@@ -29,7 +29,7 @@ func (h Handler) Serve(port int) {
 		h.getBrowserCategories()
 	})
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%d", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
 
 // Получает категории от from до to
