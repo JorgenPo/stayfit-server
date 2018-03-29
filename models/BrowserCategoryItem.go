@@ -9,5 +9,6 @@ type BrowserCategoryItem struct {
 	Description string
 	Price 	int
 	Image 	string
+	Difficulty int
 	Rating 	int		// Оценка
 }

@@ -56,7 +56,8 @@ func (s StayFitServer) GetBrowserCategories(from int, to int) ([]models.BrowserC
 func (s StayFitServer) getCategoryItems(category *models.BrowserCategory) error {
 	db := s.ServerDatabase.Sql
 
-	itemQuery := fmt.Sprintf("select %[1]s.Name, %[1]s.Description, %[1]s.Image, %[1]s.Rating " +
+	itemQuery := fmt.Sprintf("select %[1]s.Name, %[1]s.Description, %[1]s.Image, %[1]s.Rating, " +
+		"%[1]s.Difficulty " +
 		"from browser_category_items as categoryItems " +
 		"left join %[1]s on %[1]s.id = categoryItems.Item " +
 		"where categoryItems.Category = ?", category.ItemType)
@@ -70,7 +71,7 @@ func (s StayFitServer) getCategoryItems(category *models.BrowserCategory) error 
 	for itemRows.Next() {
 		var item models.BrowserCategoryItem
 
-		itemRows.Scan(&item.Name, &item.Description, &item.Image, &item.Rating)
+		itemRows.Scan(&item.Name, &item.Description, &item.Image, &item.Rating, &item.Difficulty)
 		category.Items = append(category.Items, item)
 	}
 
