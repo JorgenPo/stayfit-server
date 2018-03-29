@@ -24,6 +24,8 @@ func (h Handler) Serve(port int) {
 	http.HandleFunc("/get/browserCategories", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
+		logRequest(request)
+
 		h.out = writer
 		h.request = request
 		h.getBrowserCategories()
@@ -35,7 +37,6 @@ func (h Handler) Serve(port int) {
 // Получает категории от from до to
 // from, to - url параметры
 func (h Handler) getBrowserCategories() {
-	log.Println("getBrowserCategories!")
 	from, _, err := h.getIntParam("from", true)
 	if err != nil {
 		return
@@ -97,4 +98,8 @@ func (h Handler) getIntParam(name string, required bool) (int, bool, error) {
 	}
 
 	return param, true, nil
+}
+
+func logRequest(r *http.Request) {
+	log.Printf("Client (%s) requesting %s", r.RemoteAddr, r.URL.Path)
 }
