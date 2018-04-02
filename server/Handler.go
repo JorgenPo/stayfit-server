@@ -7,6 +7,9 @@ import (
 	"github.com/pkg/errors"
 	"strconv"
 	"log"
+	"strings"
+	"os"
+	"io/ioutil"
 )
 
 type Handler struct {
@@ -31,7 +34,59 @@ func (h Handler) Serve(port int) {
 		h.getBrowserCategories()
 	})
 
+	http.HandleFunc("/get/image/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "image/jpeg")
+
+		logRequest(request)
+
+		h.out = writer
+		h.request = request
+		h.getImage()
+	})
+	
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+}
+
+// Возвращает изображение jpeg,
+// Само изображение должно быть передано в последнем фрагменте
+// Возвращает image/jpeg, а не json, в случае ошибки возвращает
+// статус 404
+func (h Handler) getImage() {
+	path := strings.Split(h.request.URL.Path, "/")
+
+	imageName := path[len(path)- 1]
+
+	log.Printf("GET %s", imageName)
+
+	splitted := strings.Split(imageName, ".")
+	extension := splitted[len(splitted) - 1]
+
+	// TODO: Другие типы
+	if extension != "jpg" {
+		h.out.WriteHeader(404)
+		return
+	}
+
+	file, err := os.Open(h.server.ServerConfig.ImagesDirectory + "/" + imageName)
+	if err != nil {
+		log.Printf("[getImage]:" + err.Error())
+
+		h.out.WriteHeader(404)
+
+		return
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Printf("[getImage]:" + err.Error())
+
+		h.out.WriteHeader(404)
+
+		return
+	}
+
+	h.out.Write(data)
 }
 
 // Получает категории от from до to
@@ -56,7 +111,7 @@ func (h Handler) getBrowserCategories() {
 
 	response, err := json.Marshal(categories)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Println(err.Error())
 		h.handleError(ErrorResponse{Status:500, Message: "Internal Error"})
 		return
 	}
@@ -76,6 +131,7 @@ func (h Handler) handleError(errResponse ErrorResponse) {
 		return
 	}
 
+	h.out.Header().Set("Content-Type", "application/json")
 	h.out.Write(js)
 }
 
