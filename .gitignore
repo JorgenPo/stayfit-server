@@ -26,5 +26,4 @@ dist/
 nbdist/
 .nb-gradle/
 
-### Application Properties ###
-src/main/resources/application.properties
+src/main/resources/public/images/
