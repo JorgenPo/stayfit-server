@@ -2,7 +2,7 @@ package database
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"fmt"
 )
 
@@ -10,13 +10,13 @@ type Database struct {
 	Name string
 	User string
 	Password string
-	Sql* sql.DB
+	Sql* sqlx.DB
 }
 
 func GetDatabase(name string, user string, password string) (Database, error) {
 	database := Database{}
 
-	db, err := sql.Open("mysql",
+	db, err := sqlx.Open("mysql",
 		fmt.Sprintf("%s:%s@/%s", user, password, name))
 
 	if err != nil {

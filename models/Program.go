@@ -7,5 +7,5 @@ type Program struct {
 	Difficulty int
 	ProgramType string // Тип программы, full-body, split, novice, ...
 	Price int
-	Rating int
+	Rating float32
 }

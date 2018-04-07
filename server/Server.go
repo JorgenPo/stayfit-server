@@ -5,6 +5,7 @@ import (
 	"github.com/jorgenpo/stayfit-server/config"
 	"github.com/jorgenpo/stayfit-server/database"
 	"fmt"
+	"log"
 )
 
 /* Реализация интерфейса StayFitInterface */
@@ -31,23 +32,18 @@ func (s StayFitServer) GetBrowserCategories(from int, to int) ([]models.BrowserC
 
 	db := s.ServerDatabase.Sql
 
-	categoryRows, err := db.Query("select * from browser_categories as categories " +
+	err := db.Select(&categories, "select * from browser_categories as categories " +
 		"LIMIT ?, ?", from, to)
 
 	if err != nil {
 		return categories, err
 	}
 
-	for categoryRows.Next() {
-		var category = models.BrowserCategory{}
-		categoryRows.Scan(&category.ID, &category.Name, &category.Description, &category.ItemType)
-
-		err := s.getCategoryItems(&category)
+	for i, _ := range categories {
+		err := s.getCategoryItems(&categories[i])
 		if err != nil {
-			return categories, err
+			log.Println(err)
 		}
-
-		categories = append(categories, category)
 	}
 
 	return categories, nil
@@ -56,23 +52,12 @@ func (s StayFitServer) GetBrowserCategories(from int, to int) ([]models.BrowserC
 func (s StayFitServer) getCategoryItems(category *models.BrowserCategory) error {
 	db := s.ServerDatabase.Sql
 
-	itemQuery := fmt.Sprintf("select %[1]s.Name, %[1]s.Description, %[1]s.Image, %[1]s.Rating, " +
-		"%[1]s.Difficulty " +
-		"from browser_category_items as categoryItems " +
-		"left join %[1]s on %[1]s.id = categoryItems.Item " +
-		"where categoryItems.Category = ?", category.ItemType)
+	/* Представления отдельных категорий хранятся как view_... */
+	itemQuery := fmt.Sprintf("select * from view_category%d", category.ID)
 
-	itemRows, err := db.Query(itemQuery, category.ID)
-
+	err := db.Select(&category.Items, itemQuery)
 	if err != nil {
-		return err
-	}
-
-	for itemRows.Next() {
-		var item models.BrowserCategoryItem
-
-		itemRows.Scan(&item.Name, &item.Description, &item.Image, &item.Rating, &item.Difficulty)
-		category.Items = append(category.Items, item)
+		log.Println(err)
 	}
 
 	return nil

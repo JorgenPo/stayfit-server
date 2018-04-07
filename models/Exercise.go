@@ -8,5 +8,5 @@ type Exercise struct {
 	Category 	MuscleGroup
 	IsBase		bool
 	Price 		int
-	Rating		int
+	Rating		float32
 }
